@@ -21,8 +21,17 @@ def set_metadata(documents):
         doc.metadata["chapter_name"] = get_chapter_name(doc, chapters)
 
 
+if __name__ == "__main__":
+    PARSED_FOLDER = "chapters/parsed/" 
+    EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+    CHUNK_SIZE = 256
 
-documents = SimpleDirectoryReader("chapters/parsed/").load_data()
+    documents = SimpleDirectoryReader(PARSED_FOLDER).load_data()
+    set_metadata(documents)
+    Settings.embed_model = HuggingFaceEmbedding(model_name=EMBEDDING_MODEL)
 
-set_metadata(documents)
-
+    index = VectorStoreIndex.from_documents(
+        documents,
+        transformations=[SentenceSplitter(chunk_size=CHUNK_SIZE)] # 256 is the size limit imposed by the model https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+    )
+    index.storage_context.persist()
