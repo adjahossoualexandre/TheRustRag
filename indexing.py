@@ -5,18 +5,8 @@ from module import (
     get_chapter_name,
     map_chapnum_to_chapname
     )
-import re
-
-documents = SimpleDirectoryReader("chapters/parsed/").load_data()
-
-for doc in documents:
-    infos = get_toc_info(doc)
-    for key,value in infos.items():
-        doc.metadata[key] = value
-chapters = map_chapnum_to_chapname(documents)
-
-for doc in documents:
-    doc.metadata["chapter_name"] = get_chapter_name(doc, chapters)
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core import Settings
 
 def set_metadata(documents):
 
@@ -31,6 +21,8 @@ def set_metadata(documents):
         doc.metadata["chapter_name"] = get_chapter_name(doc, chapters)
 
 
-index = VectorStoreIndex.from_documents(
-    documents, transformations=[SentenceSplitter(chunk_size=512)]
-)
+
+documents = SimpleDirectoryReader("chapters/parsed/").load_data()
+
+set_metadata(documents)
+
