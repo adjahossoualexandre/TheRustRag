@@ -1,12 +1,11 @@
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
+from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, ServiceContext
 from llama_index.core.node_parser import SentenceSplitter
 from module import (
     get_toc_info,
     get_chapter_name,
     map_chapnum_to_chapname
     )
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.core import Settings
+from models import load_and_cache_embedding_model
 
 def set_metadata(documents):
 
@@ -24,14 +23,20 @@ def set_metadata(documents):
 if __name__ == "__main__":
     PARSED_FOLDER = "chapters/parsed/" 
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+    EMBEDDING_CACHE_FOLDER = "embedding_model"
     CHUNK_SIZE = 256
 
     documents = SimpleDirectoryReader(PARSED_FOLDER).load_data()
     set_metadata(documents)
-    Settings.embed_model = HuggingFaceEmbedding(model_name=EMBEDDING_MODEL)
 
+    embed_model = load_and_cache_embedding_model(EMBEDDING_MODEL, EMBEDDING_CACHE_FOLDER)
+    service_context = ServiceContext.from_defaults(
+        chunk_size=CHUNK_SIZE,
+        embed_model=embed_model
+        )
     index = VectorStoreIndex.from_documents(
         documents,
-        transformations=[SentenceSplitter(chunk_size=CHUNK_SIZE)] # 256 is the size limit imposed by the model https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+        transformations=[SentenceSplitter(chunk_size=CHUNK_SIZE)], # 256 is the size limit imposed by the model https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+        service_context=service_context
     )
     index.storage_context.persist()
