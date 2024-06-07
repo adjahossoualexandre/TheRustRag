@@ -1,0 +1,70 @@
+llm: None
+EMBEDDING_MODEL: embedding_model/models--sentence-transformers--all-MiniLM-L6-v2/snapshots/8b3219a92973c328a8e22fadcfa821b5dc75636a
+STORAGE_PATH: storage
+CHUNK_SIZE: 256
+user_query: explain the borrow checker like I was 5
+------------------------
+chapter_number: 8
+chapter_name: common-collections
+subsection_number: 1
+subsection_name: vectors
+text: For example, the index
+could be coming from a person entering a number. If they accidentally enter a
+number that’s too large and the program gets a None value, you could tell the
+user how many items are in the current vector and give them another chance to
+enter a valid value. That would be more user-friendly than crashing the program
+due to a typo!
+When the program has a valid reference, the borrow checker enforces the
+ownership and borrowing rules (covered in Chapter 4) to ensure this reference
+and any other references to the contents of the vector remain valid. Recall the
+rule that states you can’t have mutable and immutable references in the same
+scope. That rule applies in Listing 8-6, where we hold an immutable reference
+to the first element in a vector and try to add an element to the end. This
+program won’t work if we also try to refer to that element later in the
+function.
+------------------------------------------------
+------------------------------------------------
+
+chapter_number: 10
+chapter_name: generics
+subsection_number: 3
+subsection_name: lifetime-syntax
+text: We also don’t know the concrete lifetimes of the
+references that will be passed in, so we can’t look at the scopes as we did in
+Listings 10-17 and 10-18 to determine whether the reference we return will
+always be valid. The borrow checker can’t determine this either, because it
+doesn’t know how the lifetimes of x and y relate to the lifetime of the
+return value. To fix this error, we’ll add generic lifetime parameters that
+define the relationship between the references so the borrow checker can
+perform its analysis.
+Lifetime Annotation Syntax
+Lifetime annotations don’t change how long any of the references live. Rather,
+they describe the relationships of the lifetimes of multiple references to each
+other without affecting the lifetimes. Just as functions can accept any type
+when the signature specifies a generic type parameter, functions can accept
+references with any lifetime by specifying a generic lifetime parameter.
+------------------------------------------------
+------------------------------------------------
+
+chapter_number: 10
+chapter_name: generics
+subsection_number: 3
+subsection_name: lifetime-syntax
+text: In practice, it means that the lifetime of the reference returned by the
+longest function is the same as the smaller of the lifetimes of the values
+referred to by the function arguments. These relationships are what we want
+Rust to use when analyzing this code.
+Remember, when we specify the lifetime parameters in this function signature,
+we’re not changing the lifetimes of any values passed in or returned. Rather,
+we’re specifying that the borrow checker should reject any values that don’t
+adhere to these constraints. Note that the longest function doesn’t need to
+know exactly how long x and y will live, only that some scope can be
+substituted for 'a that will satisfy this signature.
+When annotating lifetimes in functions, the annotations go in the function
+signature, not in the function body. The lifetime annotations become part of
+the contract of the function, much like the types in the signature. Having
+function signatures contain the lifetime contract means the analysis the Rust
+compiler does can be simpler.
+------------------------------------------------
+------------------------------------------------
+
