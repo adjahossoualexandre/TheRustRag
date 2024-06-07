@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import os
 import re
 
+############################## Parse raw data
+
 def read_file(file_path: str, mode: str="r") -> str:
     with open(file_path, mode=mode) as f:
         file = f.read()
@@ -53,6 +55,9 @@ def write_text_to_file(file_path, text):
         print(f"Text successfully written to {file_path}")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+############################## extract metadata from Documents for indexing
 
 def get_toc_info(document, first_n_char=7, chapter_name_pattern="^ch\d+"):
     file_name: str = document.metadata["file_name"]
