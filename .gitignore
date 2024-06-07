@@ -1,2 +1,4 @@
 chapters/raw
 chapters/parsed
+embedding_model
+__pycache__
