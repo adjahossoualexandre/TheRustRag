@@ -3,3 +3,4 @@ chapters/parsed
 embedding_model
 __pycache__
 resources
+temp/
