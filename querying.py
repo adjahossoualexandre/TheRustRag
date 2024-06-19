@@ -62,6 +62,7 @@ if __name__ == "__main__":
             "chapter_name":  n.metadata["chapter_name"],
             "subsection_number":  n.metadata["subsection_number"],
             "subsection_name":  n.metadata["subsection_name"],
-            "text": n.text
+            "text": n.text,
+            "score": n.score
         }
         experiment.track(output)
