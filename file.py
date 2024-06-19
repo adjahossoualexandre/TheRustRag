@@ -9,6 +9,21 @@ def read_file(file_path: str, mode: str="r") -> str:
         file = f.read()
     return file
 
+def write_text_to_file(file_path, text):
+    """
+    Writes the given text to a new file.
+
+    Args:
+    file_path (str): Path to the new file.
+    text (str): Text to write into the file.
+    """
+    try:
+        with open(file_path, 'w') as file:
+            file.write(text)
+        print(f"Text successfully written to {file_path}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 def parse_markdown_to_text(file: str) -> str:
     html = markdown(file)
     page_elements = BeautifulSoup(html, "html.parser").findAll(text=True)
@@ -39,21 +54,6 @@ def list_files_in_folder(folder_path, file_extension=None):
         files = [f for f in files if f.endswith(file_extension)]
     
     return files
-
-def write_text_to_file(file_path, text):
-    """
-    Writes the given text to a new file.
-
-    Args:
-    file_path (str): Path to the new file.
-    text (str): Text to write into the file.
-    """
-    try:
-        with open(file_path, 'w') as file:
-            file.write(text)
-        print(f"Text successfully written to {file_path}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
 
 def parse_all_pages(raw_folder, parsed_folder, file_extension=None):
     pages = list_files_in_folder(raw_folder, file_extension)

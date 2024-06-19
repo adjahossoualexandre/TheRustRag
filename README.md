@@ -7,7 +7,7 @@ A Retrieval-Augmented Generation (RAG) chatbot based on [the Rust book](https://
 execution order:
 
     `pip install -r requirements.txt`
-    `python data_processing.py`
+    `python file.py`
     `python indexing.py`
     `python querying.py`
 
