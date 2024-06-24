@@ -1,11 +1,13 @@
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, ServiceContext
 from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.vector_stores import SimpleVectorStore
 from metadata import (
     get_toc_info,
     get_chapter_name,
     map_chapnum_to_chapname
     )
 from models import load_and_cache_embedding_model
+import pickle
 
 def set_metadata(documents):
 
@@ -28,15 +30,18 @@ if __name__ == "__main__":
 
     documents = SimpleDirectoryReader(PARSED_FOLDER).load_data()
     set_metadata(documents)
-
+    
+    nodes = SentenceSplitter(chunk_size=CHUNK_SIZE) \
+        .get_nodes_from_documents(documents)
+    
+    # Load model
     embed_model = load_and_cache_embedding_model(EMBEDDING_MODEL, EMBEDDING_CACHE_FOLDER)
-    service_context = ServiceContext.from_defaults(
-        chunk_size=CHUNK_SIZE,
-        embed_model=embed_model
-        )
-    index = VectorStoreIndex.from_documents(
-        documents,
-        transformations=[SentenceSplitter(chunk_size=CHUNK_SIZE)], # 256 is the size limit imposed by the model https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
-        service_context=service_context
-    )
-    index.storage_context.persist()
+
+    # Embed chunks and store in SimpleVectorStore
+    vector_store = SimpleVectorStore()
+    for node in nodes:
+        node.embedding = embed_model.get_text_embedding(node.get_content())
+        vector_store.add(node.embedding, node.get_doc_id(), node.get_content())
+
+    # Save vector store
+    vector_store.persist()
