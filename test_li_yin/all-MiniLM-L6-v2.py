@@ -1,4 +1,4 @@
-"""Model: jinaai/jina-embeddings-v2-small-en"""
+""""Model: sentence-transformers/all-MiniLM-L6-v2"""
 from abc import ABC, abstractclassmethod
 from typing import Any, Dict, Union, List, Optional
 from functools import lru_cache
