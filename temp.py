@@ -65,34 +65,80 @@ folder = "chapters/parsed"
 files = read_all_files(folder, ".md")
 docs = convert_file_to_documents(files)
 
-from metadata import set_metadata
+from document_metadata import set_metadata
 set_metadata(docs)
 
-# upload model from HF
+# Download model from HF
+from models import load_from_HuggingFace, save_model
 
-# save model locally
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+PERSIST_DIR = "persist_temp"
 
-# Load local model
+model, tokenizer = load_from_HuggingFace(MODEL_NAME, MODEL_NAME)
+save_model(model, tokenizer, PERSIST_DIR)
 
-# preprocess documents
+## Configure the splitter settings
+from lightrag.components.data_process.text_splitter import TextSplitter
 
-## split texts into chunks
-
-## manage chunks/docs
-
-## store preprocessed documents
+text_splitter = TextSplitter(
+    split_by="passage",
+    chunk_size=1,
+    chunk_overlap=0
+)
 
 # Generate embeddings
+from models import CustomModelClient, AllMiniLML6V2Embedder
+from lightrag.core import Embedder, Sequential
+from lightrag.components.data_process import ToEmbeddings
 
-# Store embeddings
+MODEL_PATH = "sentence-transformers/all-MiniLM-L6-v2"
+TOKENIZER_PATH = "sentence-transformers/all-MiniLM-L6-v2"
+PERSIST_DIR = "persist_temp/"
+BATCH_SIZE = 10
 
+model_kwargs = {
+    "model": MODEL_PATH
+}
 
-# Preprocess user query
+transformer_embedder = AllMiniLML6V2Embedder(MODEL_PATH)
+model_client = CustomModelClient(transformer_embedder)
+local_embedder = Embedder(model_client=model_client,
+    model_kwargs=model_kwargs
+    )
+embedder_transformer = ToEmbeddings(local_embedder, batch_size=BATCH_SIZE)
+data_transformer = Sequential(text_splitter, embedder_transformer)
 
-# load local model
+## store preprocessed documents
+from lightrag.core.db import LocalDB
+db = LocalDB()
+db.load(docs)
+#d = data_transformer(docs)
 
-# embed user query
+## Generate and store embedding
+key = "split_and_embed"
+db.transform(data_transformer, map_fn= None, key=key)
+transformed_documents = db.get_transformed_data(key)
+
+# Retriever
+#from lightrag.components.retriever import FAISSRetriever <- for some reason it doesn't work. see with Li Yin bc it is the code from documentation https://lightrag.sylph.ai/tutorials/retriever.html#faissretriever
+from lightrag.components.retriever.faiss_retriever import FAISSRetriever
+retriever = FAISSRetriever(top_k=2, embedder=local_embedder)
+retriever.build_index_from_documents([doc.vector for doc in transformed_documents])
 
 # retrieve documents
-
+retrieved_documents = retriever(input="explain the borrow-checker as if I was 5")
+## fill in the document
+for i, retriever_output in enumerate(retrieved_documents):
+    retrieved_documents[i].documents = [
+        transformed_documents[doc_index]
+        for doc_index in retriever_output.doc_indices
+    ]
 # generate response
+## convert all the documents to context string
+from lightrag.components.data_process.data_components import RetrieverOutputToContextStr
+
+retriever_output_processors = RetrieverOutputToContextStr(deduplicate=True)
+context_str = retriever_output_processors(retrieved_documents)
+print(context_str)
+
+## Generator
