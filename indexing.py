@@ -1,6 +1,6 @@
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, ServiceContext
 from llama_index.core.node_parser import SentenceSplitter
-from metadata import (
+from document_metadata import (
     get_toc_info,
     get_chapter_name,
     map_chapnum_to_chapname
