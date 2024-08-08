@@ -69,7 +69,7 @@ from document_metadata import set_metadata
 set_metadata(docs)
 
 # Download model from HF
-from models import load_from_HuggingFace, save_model
+from models.model_utils import load_from_HuggingFace, save_model
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 PERSIST_DIR = "persist_temp"
@@ -87,7 +87,7 @@ text_splitter = TextSplitter(
 )
 
 # Generate embeddings
-from models import CustomModelClient, AllMiniLML6V2Embedder
+from models.embedding_model import CustomEmbeddingModelClient, AllMiniLML6V2Embedder
 from lightrag.core import Embedder, Sequential
 from lightrag.components.data_process import ToEmbeddings
 
@@ -101,7 +101,7 @@ model_kwargs = {
 }
 
 transformer_embedder = AllMiniLML6V2Embedder(MODEL_PATH)
-model_client = CustomModelClient(transformer_embedder)
+model_client = CustomEmbeddingModelClient(transformer_embedder)
 local_embedder = Embedder(model_client=model_client,
     model_kwargs=model_kwargs
     )
