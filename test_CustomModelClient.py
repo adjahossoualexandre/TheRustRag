@@ -1,4 +1,4 @@
-from models import CustomModelClient
+from models.embedding_model import CustomEmbeddingModelClient
 from lightrag.core import Embedder
 from sentence_transformers.util import pytorch_cos_sim
 
@@ -52,7 +52,7 @@ if __name__ =="__main__":
     model_kwargs = {
         "model": MODEL_PATH
     }
-    local_embedder = Embedder(model_client=CustomModelClient(), model_kwargs=model_kwargs)
+    local_embedder = Embedder(model_client=CustomEmbeddingModelClient(), model_kwargs=model_kwargs)
 
     # run test
     get_sentence_similarities(sentence_ref, sentence_to_compare_to, local_embedder)
