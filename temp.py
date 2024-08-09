@@ -126,7 +126,9 @@ retriever = FAISSRetriever(top_k=2, embedder=local_embedder)
 retriever.build_index_from_documents([doc.vector for doc in transformed_documents])
 
 # retrieve documents
-retrieved_documents = retriever(input="explain the borrow-checker as if I was 5")
+user_query = "explain the borrow-checker as if I was 5"
+retrieved_documents = retriever(input=user_query)
+
 ## fill in the document
 for i, retriever_output in enumerate(retrieved_documents):
     retrieved_documents[i].documents = [
@@ -141,4 +143,30 @@ retriever_output_processors = RetrieverOutputToContextStr(deduplicate=True)
 context_str = retriever_output_processors(retrieved_documents)
 print(context_str)
 
+from utils import ManualExperiment
+
+experiment_metadata = {
+    "llm": None,
+    "storage_path": "manual_tracking/first AdalFlow (lightrag) retrieval",
+    "chunk_size(nb of sentence)": 1,
+    "chunk_overlap(nb of sentence)": 1,
+    "user_query": user_query
+}
+experiment = ManualExperiment("first AdalFlow (lightrag) retrieval", "manual_tracking")
+
+#retrieve documents metadata
+docS = retrieved_documents[0]
+for doc_pos in range(len(docS.doc_indices)):
+    doc = docS.documents[doc_pos]
+    output = dict(    
+        id_ = doc.id,
+        scores = docS.doc_scores[doc_pos],
+        file_name = doc.meta_data["file_name"],
+        chapter_number = doc.meta_data["chapter_number"],
+        subsection_name = doc.meta_data["subsection_name"],
+        subsection_number = doc.meta_data["subsection_number"],
+        parent_doc_id = doc.parent_doc_id,
+        text = doc.text
+    )
+    experiment.track(output)
 ## Generator
