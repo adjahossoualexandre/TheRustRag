@@ -69,7 +69,7 @@ class TransformerLLM:
         input_text: str,
         skip_special_tokens: bool = True,
         clean_up_tokenization_spaces: bool = False,
-        max_length: int = 150,
+        max_length: int = 300,
     ):
         if not self.model:
             log.error("Model is not initialized.")
@@ -119,7 +119,7 @@ class TransformerLLM:
         input_text: str,
         skip_special_tokens: bool = True,
         clean_up_tokenization_spaces: bool = False,
-        max_length: int = 150,
+        max_length: int = 300,
         model = None, # For compantibility with Generator ||||| might be something to fix in Generator source code -> api_kwargs always contains a 'model' arguments. 'model' is parsed either in call() or in __init__(),
         **kwargs
     ):
@@ -180,7 +180,7 @@ class CustomLlmModelClient(ModelClient):
 if __name__ == "__main__":
     from lightrag.core import Generator
     from lightrag.core.string_parser import JsonParser
-    MODEL = "BAAI/bge-small-en-v1.5"
+    MODEL = "sshleifer/tiny-gpt2"
     context = "Brian is in the kitchen."
     query = "where is brian?"
 
