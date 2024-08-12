@@ -62,10 +62,23 @@ def ingest_documents(folder_path: str, file_extension: str = None) -> list[Docum
     return documents
 
 if __name__ == "__main__":
+    from lightrag.core.db import LocalDB
+    from document_metadata import set_metadata
 
-    folder = "chapters/parsed"
-    extension = ".md"
-    docs = ingest_documents(folder, extension)
-    for count, doc in enumerate(docs):
-        print(count, "-", doc.meta_data["file_name"])
+    PARSED_DATA_FOLDER = "chapters/parsed"
+    EXTENSION = ".md"
+    DOC_STORE = "doc_store.pkl"
+
+    db = LocalDB().load_state(DOC_STORE) if os.path.isfile(DOC_STORE) else LocalDB()
+    db_init_size = len(db.items)
+    
+    print(f'{"-"*10}{" "}{db_init_size} documents in the document store.{" "}{"-"*10}')
+    print(f'Ingest new documents.')
+
+    documents = ingest_documents(PARSED_DATA_FOLDER, EXTENSION)
+    set_metadata(documents)
+    n_new_docs = len(documents)
+    db.load(documents)
+    db.save_state(DOC_STORE)
+    print(f'{"-"*10}{" "}Ingested {n_new_docs} new documents.{" "}{"-"*10}')
 
