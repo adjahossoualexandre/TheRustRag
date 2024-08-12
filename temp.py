@@ -7,15 +7,6 @@ docs = ingest_documents(folder, extension)
 
 set_metadata(docs)
 
-# Download model from HF
-from models.model_utils import load_from_HuggingFace, save_model
-
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-PERSIST_DIR = "persist_temp"
-
-model, tokenizer = load_from_HuggingFace(MODEL_NAME, MODEL_NAME)
-save_model(model, tokenizer, PERSIST_DIR)
-
 ## Configure the splitter settings
 from lightrag.components.data_process.text_splitter import TextSplitter
 
@@ -30,9 +21,9 @@ from models.embedding_model import CustomEmbeddingModelClient, AllMiniLML6V2Embe
 from lightrag.core import Embedder, Sequential
 from lightrag.components.data_process import ToEmbeddings
 
-MODEL_PATH = "sentence-transformers/all-MiniLM-L6-v2"
-TOKENIZER_PATH = "sentence-transformers/all-MiniLM-L6-v2"
-PERSIST_DIR = "persist_temp/"
+MODEL_STORE = "model_store"
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+MODEL_PATH = MODEL_STORE + "/" + EMBEDDING_MODEL
 BATCH_SIZE = 10
 
 model_kwargs = {
