@@ -20,7 +20,7 @@ if __name__ == "__main__":
     if not os.path.isdir(MODEL_PATH):
         raise FileNotFoundError(f"model {EMBEDDING_MODEL} is not in the model store.")
 
-    # Ingestion parametets
+    # Embedding parameters
     BATCH_SIZE = 10
     SPLIT_BY = "passage"
     CHUNK_SIZE = 1
