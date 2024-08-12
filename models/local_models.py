@@ -4,7 +4,7 @@ from model_utils import load_from_HuggingFace, save_model
 if __name__ == "__main__":
 
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-    GENERATION_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+    GENERATION_MODEL = "sshleifer/tiny-gpt2"
     MODEL_STORE = "model_store"
     LOCAL_EMBEDDING_MODEL = MODEL_STORE + "/" + EMBEDDING_MODEL 
     LOCAL_GENERATRION_MODEL = MODEL_STORE + "/" + GENERATION_MODEL 
