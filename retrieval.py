@@ -30,7 +30,7 @@ def retrieve_documents(user_query: str, retriever: Retriever):
 
 if __name__ == "__main__":
 
-    RUN_EXPERIMENT = False
+    RUN_EXPERIMENT = False 
 
     # Docuemnt store
     DOC_STORE = "doc_store.pkl"
@@ -91,7 +91,7 @@ if __name__ == "__main__":
             "chunk_overlap(nb of sentence)": 1,
             "user_query": USER_QUERY
         }
-        experiment = ManualExperiment("first AdalFlow (lightrag) retrieval", "manual_tracking")
+        experiment = ManualExperiment("first AdalFlow (lightrag) retrieval", "manual_tracking", experiment_metadata)
 
         #retrieve documents metadata
         docS = retrieved_documents[0]
