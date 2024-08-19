@@ -7,6 +7,12 @@ from lightrag.components.retriever.faiss_retriever import FAISSRetriever, Retrie
 from lightrag.components.data_process.data_components import RetrieverOutputToContextStr
 import os
 
+# MLFLow
+import mlflow
+from mlflow import log_artifact, log_param 
+from mlflow_utils import create_mlflow_experiment, get_mlflow_experiment
+from dotenv import load_dotenv
+
 
 def build_index(db: LocalDB, key: str, retriever: type[Retriever], retriever_kwargs=dict) -> tuple[Retriever, list[Document]]:
     transformed_documents = db.get_transformed_data(key)
@@ -33,7 +39,7 @@ if __name__ == "__main__":
     RUN_EXPERIMENT = False 
 
     # Docuemnt store
-    DOC_STORE = "doc_store.pkl"
+    DOC_STORE = "doc_store_001.pkl"
     KEY = "split_and_embed"
 
     # Embedding model
@@ -75,6 +81,7 @@ if __name__ == "__main__":
 
     retriever_kwargs["embedder"] = local_embedder
     retriever, transformed_documents = build_index(db, KEY, retriever_strategy, retriever_kwargs)
+
     # retrieve documents
     retrieved_documents = retrieve_documents(USER_QUERY, retriever)
     context_str = build_context_str(retrieved_documents)
@@ -82,6 +89,19 @@ if __name__ == "__main__":
 
 
     if RUN_EXPERIMENT:
+
+        # Set tracking URI to your Heroku application
+        load_dotenv()
+
+        MLFLOW_URI = os.environ["MLFLOW_URI"]
+
+        EXPERIMENT_NAME="Debug chunking"
+        mlflow.set_tracking_uri(MLFLOW_URI)
+
+
+        run_descrition = "this is a test."
+        ml_flow_experiment = get_mlflow_experiment(experiment_name=EXPERIMENT_NAME)
+
         from utils import ManualExperiment
 
         experiment_metadata = {
@@ -108,3 +128,28 @@ if __name__ == "__main__":
                 text = doc.text
             )
             experiment.track(output)
+
+        filter_str = """
+        tags.parent = "True"
+        """
+        runs_in_exp = mlflow.search_runs(
+            filter_string=filter_str,
+            experiment_ids=ml_flow_experiment.experiment_id,
+            order_by=["attributes.created DESC"],
+            output_format="list"      
+            )
+        parent_run = runs_in_exp[0]
+
+        with mlflow.start_run(
+            run_name = "retrieve documents",
+            experiment_id = ml_flow_experiment.experiment_id,
+            nested=True,
+            parent_run_id=parent_run.info.run_id,
+            ) as run:
+            log_param("user_query", USER_QUERY)
+            log_param("retriever", retriever_strategy)
+            for key, val in retriever_kwargs.items():
+                param = "retr" + "_" + key
+                log_param(param, retriever_kwargs[key])
+
+            log_artifact(experiment.file_path)
