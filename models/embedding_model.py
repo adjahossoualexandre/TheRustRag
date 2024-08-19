@@ -8,24 +8,32 @@ import torch
 import logging
 from transformers import AutoTokenizer, AutoModel 
 from lightrag.core import ModelClient
+from lightrag.core import Component
+
 
 def mean_pooling(model_output, attention_mask):
     token_embeddings = model_output[0] #First element of model_output contains all token embeddings
     input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
     return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
 
+
 log = logging.getLogger(__name__)
 
-class TransformerEmbedder(ABC):
+class TransformerEmbedder(ABC, Component):
 
-    def __init__(self, model_name: Optional[str] = None):
+    def __init__(
+            self,
+            model_name: Optional[str] = None,
+            tokenizer_kwargs: Optional[dict] = dict()
+            ):
         super().__init__()
         self.models = dict()
         if model_name is not None:
             self.model_name = model_name
             """Lazy intialisation of the model in TransformerClient.init_sync_client()"""
             #self.init_model(model_name=self.model_name)
-            
+        self.tokenizer_kwargs = tokenizer_kwargs
+
     @lru_cache(None)
     def init_model(self, model_name: str, auto_model: Optional[type] = AutoModel, auto_tokenizer: Optional[type] = AutoTokenizer):
         try:
@@ -52,7 +60,7 @@ class TransformerEmbedder(ABC):
         pass
 
     @abstractclassmethod
-    def tokenize_inputs(self, input):
+    def tokenize_inputs(self, input, kwargs: Optional[dict] = dict()):
         pass
 
     @abstractclassmethod
@@ -134,7 +142,7 @@ class AllMiniLML6V2Embedder(TransformerEmbedder):
             self.init_model(self.model_name)
 
         self.handle_input(input)
-        batch_dict = self.tokenize_inputs(input)
+        batch_dict = self.tokenize_inputs(input, kwargs=self.tokenizer_kwargs)
         outputs = self.compute_model_outputs(batch_dict, model)
         embeddings = self.compute_embeddings(outputs, batch_dict)
 
@@ -150,8 +158,8 @@ class AllMiniLML6V2Embedder(TransformerEmbedder):
             input = [input]
         return input
      
-    def tokenize_inputs(self, input):
-        batch_dict = self.tokenizer(input, max_length=512, padding=True, truncation=True, return_tensors='pt')
+    def tokenize_inputs(self, input, kwargs: Optional[dict] = dict()):
+        batch_dict = self.tokenizer(input, **kwargs)
         return batch_dict
 
     def compute_model_outputs(self, batch_dict, model):
