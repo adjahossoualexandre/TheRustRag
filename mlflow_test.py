@@ -4,8 +4,6 @@ from mlflow import log_metric, log_param
 from mlflow_utils import create_mlflow_experiment, get_mlflow_experiment
 from dotenv import load_dotenv
 
-from mlflow_utils import delete_mlflow_experiment
-
 # Set tracking URI to your Heroku application
 load_dotenv()
 
