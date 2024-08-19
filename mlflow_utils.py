@@ -1,5 +1,5 @@
 import mlflow
-from typing import Any
+from typing import Any, Optional
 
 import pandas as pd
 
@@ -7,7 +7,9 @@ from sklearn.datasets import make_classification
 
 
 def create_mlflow_experiment(
-    experiment_name: str, artifact_location: str, tags: dict[str, Any]
+    experiment_name: str,
+    artifact_location: Optional[str] = None,
+    tags: Optional[dict[str, Any]] = None
 ) -> str:
     """
     Create a new mlflow experiment with the given name and artifact location.
