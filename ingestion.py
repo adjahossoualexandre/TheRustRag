@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     PARSED_DATA_FOLDER = "chapters/parsed"
     EXTENSION = ".md"
-    DOC_STORE = "doc_store.pkl"
+    DOC_STORE = "doc_store_001.pkl"
 
     db = LocalDB().load_state(DOC_STORE) if os.path.isfile(DOC_STORE) else LocalDB()
     db_init_size = len(db.items)
