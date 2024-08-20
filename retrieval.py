@@ -10,7 +10,7 @@ import os
 # MLFLow
 import mlflow
 from mlflow import log_artifact, log_param 
-from mlflow_utils import create_mlflow_experiment, get_mlflow_experiment
+from mlflow_utils import get_mlflow_experiment
 from dotenv import load_dotenv
 
 
@@ -36,7 +36,7 @@ def retrieve_documents(user_query: str, retriever: Retriever):
 
 if __name__ == "__main__":
 
-    RUN_EXPERIMENT = False 
+    RUN_EXPERIMENT = False
 
     # Docuemnt store
     DOC_STORE = "doc_store_001.pkl"
@@ -57,6 +57,12 @@ if __name__ == "__main__":
     retriever_kwargs = {
         "top_k": 2,
     }
+    tokenizer_kwargs =  {
+        "max_length": 512,
+        "padding": True,
+        "truncation": True,
+        "return_tensors": 'pt'
+    }
 
     if not os.path.isfile(DOC_STORE):
         print("Need to create a document store.")
@@ -64,7 +70,7 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"model {EMBEDDING_MODEL} is not in the model store.")
 
 
-    transformer_embedder = AllMiniLML6V2Embedder(EMBEDDING_MODEL)
+    transformer_embedder = AllMiniLML6V2Embedder(EMBEDDING_MODEL, tokenizer_kwargs)
     model_client = CustomEmbeddingModelClient(transformer_embedder)
     local_embedder = Embedder(
         model_client=model_client,
@@ -106,12 +112,12 @@ if __name__ == "__main__":
 
         experiment_metadata = {
             "llm": None,
-            "storage_path": "manual_tracking/first AdalFlow (lightrag) retrieval",
+            "local_storage_path": "manual_tracking/first AdalFlow (lightrag) retrieval",
             "chunk_size(nb of sentence)": 1,
             "chunk_overlap(nb of sentence)": 1,
             "user_query": USER_QUERY
         }
-        experiment = ManualExperiment("first AdalFlow (lightrag) retrieval", "manual_tracking", experiment_metadata)
+        experiment = ManualExperiment("first AdalFlow (lightrag) retrieval.txt", "manual_tracking", experiment_metadata)
 
         #retrieve documents metadata
         docS = retrieved_documents[0]
@@ -147,7 +153,7 @@ if __name__ == "__main__":
             parent_run_id=parent_run.info.run_id,
             ) as run:
             log_param("user_query", USER_QUERY)
-            log_param("retriever", retriever_strategy)
+            log_param("retriever", retriever_strategy.__name__)
             for key, val in retriever_kwargs.items():
                 param = "retr" + "_" + key
                 log_param(param, retriever_kwargs[key])
