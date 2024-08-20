@@ -36,7 +36,7 @@ def retrieve_documents(user_query: str, retriever: Retriever):
 
 if __name__ == "__main__":
 
-    RUN_EXPERIMENT = False
+    RUN_EXPERIMENT = True
 
     # Docuemnt store
     DOC_STORE = "doc_store_001.pkl"
@@ -102,10 +102,28 @@ if __name__ == "__main__":
         MLFLOW_URI = os.environ["MLFLOW_URI"]
 
         EXPERIMENT_NAME="Debug chunking"
+        RUN_DESCRIPTION = """### Observations: 
+
+            - `summary.md`contains a lot of key words without being informative
+                - => will be closed to a lot of queries without providing useful context
+            - for splitting the documents, I used `\\n\\n`as separator
+                - => section titles (in `summary.md`) are isolated (see second chunk in `artifacts/first AdalFlow (lightrag) retrieval.txt`)
+                - subsections are separated from section title (see first chunk in `artifacts/first AdalFlow (lightrag) retrieval.txt`)
+                - it seems like the second chunk is the section title and that the first one regroups the subsections
+            - There are empty chunks
+                - in `summary.md`sections are separated by 3 empty lines from each other. Sections are separated by 1 empty line from their respectives subsections.
+
+        ### Solutions
+
+            - custom separator `\\n\\n\\n`
+                - might be unique to `summary.md` -> need to check other pages first
+            - remove `summary.md` -> will be retrieved too ofte`
+                - could be replaced by a semantic summary
+                    - embedding(section) = avg(embedding(subsection)) with embedding(subsection) = avg(embedding(chunks))
+
+        """
+
         mlflow.set_tracking_uri(MLFLOW_URI)
-
-
-        run_descrition = "this is a test."
         ml_flow_experiment = get_mlflow_experiment(experiment_name=EXPERIMENT_NAME)
 
         from utils import ManualExperiment
@@ -151,6 +169,7 @@ if __name__ == "__main__":
             experiment_id = ml_flow_experiment.experiment_id,
             nested=True,
             parent_run_id=parent_run.info.run_id,
+            description=RUN_DESCRIPTION
             ) as run:
             log_param("user_query", USER_QUERY)
             log_param("retriever", retriever_strategy.__name__)
