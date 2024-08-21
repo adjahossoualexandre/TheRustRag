@@ -6,3 +6,6 @@ resources
 temp/
 .credentials/*
 .env
+manual_tracking/
+model_store/
+*.pkl
