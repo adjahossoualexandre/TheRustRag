@@ -31,9 +31,12 @@ def list_files_in_folder(folder_path: str, file_extension: str =None) -> list[st
     
     return files
 
-def read_all_files(folder: str, file_extension: str) -> list[dict[str, str]]:
+def read_all_files(folder: str, file_extension: str, exclude: list[str] = None) -> list[dict[str, str]]:
     files = []
     file_names = list_files_in_folder(folder_path=folder, file_extension=file_extension)
+    if exclude:
+        print("-"*10, "exclude files:", ", ".join(exclude), "-"*10)
+        file_names = [file_name for file_name in file_names if file_name not in exclude]
     for file_name in file_names:
         file_path = os.path.join(folder, file_name)
         content = read_file(file_path)
@@ -56,8 +59,8 @@ def convert_file_to_documents(files: list[dict]) -> list[Document]:
     
     return documents
 
-def ingest_documents(folder_path: str, file_extension: str = None) -> list[Document]:
-    files = read_all_files(folder_path, file_extension)
+def ingest_documents(folder_path: str, file_extension: str = None, exclude: list[str] = None) -> list[Document]:
+    files = read_all_files(folder_path, file_extension, exclude=exclude)
     documents = convert_file_to_documents(files)
     return documents
 
@@ -67,15 +70,16 @@ if __name__ == "__main__":
 
     PARSED_DATA_FOLDER = "chapters/parsed"
     EXTENSION = ".md"
-    DOC_STORE = "doc_store_001.pkl"
+    DOC_STORE = "doc_store_002.pkl"
+    EXCLUDE = ["SUMMARY.md"]
 
     db = LocalDB().load_state(DOC_STORE) if os.path.isfile(DOC_STORE) else LocalDB()
     db_init_size = len(db.items)
     
-    print(f'{"-"*10}{" "}{db_init_size} documents in the document store.{" "}{"-"*10}')
+    print(f'{"-"*10}{" "}{db_init_size} documents in the document store {DOC_STORE}.{" "}{"-"*10}')
     print(f'Ingest new documents.')
 
-    documents = ingest_documents(PARSED_DATA_FOLDER, EXTENSION)
+    documents = ingest_documents(PARSED_DATA_FOLDER, EXTENSION, EXCLUDE)
     set_metadata(documents)
     n_new_docs = len(documents)
     db.load(documents)
