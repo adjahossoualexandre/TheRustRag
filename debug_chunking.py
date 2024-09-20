@@ -57,7 +57,8 @@ if __name__ == "__main__":
 
     # Embedding constants
     BATCH_SIZE = 10
-    SPLIT_BY = "passage"
+    SPLIT_BY = "custom_passage_separator"
+    CUSTOM_SEPARATOR = {"custom_passage_separator": "\n\n\n"}
     CHUNK_SIZE = 1
     CHUNK_OVERLAP = 0
 
@@ -84,6 +85,7 @@ if __name__ == "__main__":
         key=KEY,
         batch_size=BATCH_SIZE,
         split_by=SPLIT_BY,
+        custom_separator=CUSTOM_SEPARATOR,
         chunk_size=CHUNK_SIZE,
         chunk_overlap=CHUNK_OVERLAP,
         tokenizer_kwargs=TOKENIZER_KWARGS
