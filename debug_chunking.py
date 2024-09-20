@@ -18,17 +18,17 @@ if __name__ == "__main__":
 
     load_dotenv()
     # Metadata file constante
-    FILE_NAME = "second AdalFlow (lightrag) retrieval.txt"
+    FILE_NAME = "third AdalFlow (lightrag) retrieval.txt"
 
     # Experiment constants
     MLFLOW_URI = os.environ["MLFLOW_URI"]
     EXPERIMENT_NAME="Debug chunking"
-    PARENT_RUN_NAME="custom separator: \\n\\n\\n"
+    PARENT_RUN_NAME="rm SUMMARY.md + custom separator: \\n\\n\\n"
     EMBEDDING_RUN_DESCRIPTION = ""
     RETRIEVAL_RUN_DESCRIPTION = ""
 
     # Shared constants
-    DOC_STORE = "doc_store_001.pkl"
+    DOC_STORE = "doc_store_002.pkl"
     KEY = "split_and_embed"
     MODEL_STORE = "model_store"
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"

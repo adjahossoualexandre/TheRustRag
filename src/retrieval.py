@@ -75,7 +75,7 @@ def build_context_str(retrieved_documents: list[RetrieverOutput]) -> str:
 if __name__ == "__main__":
 
     # Docuemnt store
-    DOC_STORE = "doc_store_001.pkl"
+    DOC_STORE = "doc_store_002.pkl"
     KEY = "split_and_embed"
 
     # Embedding model

@@ -70,7 +70,7 @@ def embed(
 if  __name__ == "__main__":
 
     # Files and folders
-    DOC_STORE = "doc_store_001.pkl"
+    DOC_STORE = "doc_store_002.pkl"
     MODEL_STORE = "model_store"
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
     MODEL_PATH = MODEL_STORE + "/" + EMBEDDING_MODEL
