@@ -1,5 +1,6 @@
 ## Configure the splitter settings
 from lightrag.components.data_process.text_splitter import TextSplitter
+from lightrag.components.data_process import text_splitter
 
 
 # Generate embeddings
@@ -20,7 +21,8 @@ def embed(
         split_by: str,
         chunk_size: int,
         chunk_overlap: int,
-        tokenizer_kwargs: dict
+        tokenizer_kwargs: dict,
+        custom_separator: dict[str, str] = None
 
 ) -> int:
     model_path= model_store + "/" + embedding_model
@@ -32,7 +34,9 @@ def embed(
     except Exception as e:
         print("Cannot embedd documents:", e)
 
-    text_splitter = TextSplitter(
+    if custom_separator:
+        text_splitter.SEPARATORS = custom_separator
+    splitter = TextSplitter(
         split_by=split_by,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap
@@ -48,7 +52,7 @@ def embed(
         model_kwargs=model_kwargs
         )
     embedder_transformer = ToEmbeddings(local_embedder, batch_size=batch_size)
-    data_transformer = Sequential(text_splitter, embedder_transformer)
+    data_transformer = Sequential(splitter, embedder_transformer)
 
     n_items = len(db.items)
     

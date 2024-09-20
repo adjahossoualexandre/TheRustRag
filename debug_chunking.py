@@ -17,31 +17,15 @@ from dotenv import load_dotenv
 if __name__ == "__main__":
 
     load_dotenv()
+    # Metadata file constante
+    FILE_NAME = "second AdalFlow (lightrag) retrieval.txt"
+
     # Experiment constants
     MLFLOW_URI = os.environ["MLFLOW_URI"]
     EXPERIMENT_NAME="Debug chunking"
-    PARENT_RUN_NAME="TEST embed + retrieve"
+    PARENT_RUN_NAME="custom separator: \\n\\n\\n"
     EMBEDDING_RUN_DESCRIPTION = ""
-    RETRIEVAL_RUN_DESCRIPTION = """### Observations: 
-
-        - `summary.md`contains a lot of key words without being informative
-            - => will be closed to a lot of queries without providing useful context
-        - for splitting the documents, I used `\\n\\n`as separator
-            - => section titles (in `summary.md`) are isolated (see second chunk in `artifacts/first AdalFlow (lightrag) retrieval.txt`)
-            - subsections are separated from section title (see first chunk in `artifacts/first AdalFlow (lightrag) retrieval.txt`)
-            - it seems like the second chunk is the section title and that the first one regroups the subsections
-        - There are empty chunks
-            - in `summary.md`sections are separated by 3 empty lines from each other. Sections are separated by 1 empty line from their respectives subsections.
-
-    ### Solutions
-
-        - custom separator `\\n\\n\\n`
-            - might be unique to `summary.md` -> need to check other pages first
-        - remove `summary.md` -> will be retrieved too ofte`
-            - could be replaced by a semantic summary
-                - embedding(section) = avg(embedding(subsection)) with embedding(subsection) = avg(embedding(chunks))
-
-    """
+    RETRIEVAL_RUN_DESCRIPTION = ""
 
     # Shared constants
     DOC_STORE = "doc_store_001.pkl"
@@ -148,12 +132,12 @@ if __name__ == "__main__":
                 
             retrieval_run_metadata = {
                 "llm": None,
-                "local_storage_path": "manual_tracking/first AdalFlow (lightrag) retrieval",
+                "local_storage_path": f"manual_tracking/{FILE_NAME}",
                 "chunk_size(nb of sentence)": 1,
                 "chunk_overlap(nb of sentence)": 1,
                 "user_query": USER_QUERY
             }
-            experiment_results = ManualExperiment("first AdalFlow (lightrag) retrieval.txt", "manual_tracking", retrieval_run_metadata)
+            experiment_results = ManualExperiment(FILE_NAME, "manual_tracking", retrieval_run_metadata)
 
             #retrieve documents metadata
             docS = retrieved_documents[0]
